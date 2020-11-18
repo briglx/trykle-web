@@ -1,0 +1,31 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Zone{% endblock %}
+{% block content %}
+
+<h1>Zone Details</h1>
+<form action="/zone">
+    
+
+<fieldset>
+    <p>
+        <label for="zone_name">Zone Name</label>
+        <input type="text" id="zone_name" name="zone_image" value="{{zone.zone_name}}">
+    </p>
+    <p>
+      <label for="zone_image">Image Url</label>
+      <input type="file" id="zone_image" name="zone_image" accept=".gif,.jpg,.jpeg,.png" placeholder="Zone Image">
+    </p>
+
+    
+    <p>
+     
+      <input type="submit" class="btn btn-primary" value="Save">
+      <input type="submit" class="btn " value="Cancel">
+      
+    </p>
+  </fieldset>
+  {{ form.name.label }} {{ form.name(size=20) }}
+  {{ form.csrf_token }}
+</form>
+
+{% endblock %}

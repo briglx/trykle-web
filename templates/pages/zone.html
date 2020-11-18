@@ -1,0 +1,39 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Zone{% endblock %}
+{% block content %}
+
+<h1><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-collection" fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd"
+            d="M14.5 13.5h-13A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5zm-13 1A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5h-13zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z" />
+    </svg> Zones
+    <button class="btn btn-primary" type="submit">Add Zone</button>
+</h1>
+
+
+<div class="card-columns">
+    {% for zone in zones %}
+
+    <div class="card">
+        <a href="/zone/{{zone.id}}">
+            <svg class="bd-placeholder-img " width="100%" height="260px" xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 200x200">
+                <title>Placeholder</title>
+                <rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6"
+                    dy=".3em">200x200</text>
+            </svg>
+        </a>
+        <div class="card-body">
+            <h5 class="card-title">{{ zone.zone_name }}</h5>
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
+                content. This content is a little bit longer.</p>
+        </div>
+        <div class="card-footer">
+            <small class="text-muted">Last updated 3 mins ago</small>
+        </div>
+    </div>
+
+    {% endfor %}
+</div>
+
+{% endblock %}
