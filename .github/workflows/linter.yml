@@ -10,7 +10,6 @@ jobs:
   lint-black:
     name: Check black
     runs-on: ubuntu-latest
-    needs: prepare-base
     steps:
     
     - name: Check out code from GitHub
