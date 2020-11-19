@@ -7,8 +7,8 @@ on:
 
 jobs:
 
-  build:
-    
+  lint-black:
+    name: Check black
     runs-on: ubuntu-latest
 
     steps:
@@ -28,4 +28,4 @@ jobs:
     
     - name: Run black
       run: |
-        black `ls -R|grep .py$|xargs`
+        black .
