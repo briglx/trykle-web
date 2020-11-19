@@ -20,10 +20,8 @@ jobs:
       with:
         python-version: '3.8'
     
-    - name: Create Python virtual environment
+    - name: Install dependencies
       run: |
-          python -m venv venv
-          . venv/bin/activate
           pip install -U pip
           pip install -r requirements.txt
     
