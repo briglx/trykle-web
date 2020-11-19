@@ -46,6 +46,19 @@ Execute the `createdb.sql` to create the tables
 Install Driver on local machine
 https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?redirectedfrom=MSDN&view=sql-server-ver15
 
+
+Create records in db using Flask
+```bash
+from app import db
+from app import app
+app.app_context().push()
+db.create_all()
+from trykleapp import Zone
+zone = Zone(zone_name="Test")
+db.session.add(zone)
+db.session.commit()
+```
+
 # Development
 
 ## Style Guidelines

@@ -4,7 +4,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 
-from .forms import EditZoneForm
+# from .forms import EditZoneForm
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
@@ -19,20 +19,20 @@ SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.pa
 db = SQLAlchemy()
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SECRET_KEY"] = SECRET_KEY
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 
 db.init_app(app)
 
 
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class Zone(db.Model):
+    zone_id = db.Column(db.Integer, primary_key=True)
     zone_name = db.Column(db.String(50), nullable=True)
     image_url = db.Column(db.String(255), nullable=True)
     schedule_id = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
-        return f"Post('{self.zone_name}', '{self.image_url}')"
+        return f"Zone('{self.zone_name}', '{self.image_url}')"
 
 
 zones = [
