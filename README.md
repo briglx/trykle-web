@@ -14,7 +14,7 @@ Run application
 
 ```bash
 cd /path/to/webapp
- 
+
 #Tell the terminal what application to run
 export FLASK_APP=app.py
 

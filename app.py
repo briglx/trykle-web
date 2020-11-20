@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
@@ -66,10 +67,10 @@ def zone():
 
 @app.route("/zone/<zone_id>", methods=["GET", "POST"])
 def zone_detail(zone_id):
-    form = EditZoneForm()
+    # form = EditZoneForm()
     # if form.validate_on_submit():
     #     f = form.photo.data
     #     filename = secure_filename(f.filename)
 
     zone = zones[int(zone_id)]
-    return render_template("pages/zone_detail.html", zone=zone, form=form)
+    return render_template("pages/zone_detail.html", zone=zone)
