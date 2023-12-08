@@ -24,10 +24,14 @@ repos:
           - flake8-docstrings==1.6.0
           - pydocstyle==6.1.1
         files: ^app.py|(script)\/.+\.py$
-  
-  
+
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        additional_dependencies: [toml]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v4.1.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
@@ -35,6 +39,20 @@ repos:
     - id: check-docstring-first
     - id: fix-byte-order-marker
     - id: check-shebang-scripts-are-executable
+  - repo: local
+    hooks:
+      - id: check_shellcheck
+        name: check_shellcheck
+        entry: script/pre_commit_shellcheck.sh
+        language: script
+        exclude_types: [json, sql, toml, yaml]
+        files: ^(script|iac)/.+sh$
+      - id: pylint
+        name: pylint
+        entry: script/run_in_env.sh pylint -j 0
+        language: script
+        types: [python]
+
 
 # - repo: https://github.com/psf/black
 #   rev: 19.3b0

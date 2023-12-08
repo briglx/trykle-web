@@ -20,7 +20,7 @@ load_env .env
 
 You'll need to set up a development environment if you want to develop a new feature or fix issues.
 
-The project uses a docker based devcontainer to ensure a consistent development environment. 
+The project uses a docker based devcontainer to ensure a consistent development environment.
 - Open the project in VSCode and it will prompt you to open the project in a devcontainer. This will have all the required tools installed and configured.
 
 

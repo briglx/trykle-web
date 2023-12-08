@@ -1,9 +1,11 @@
+"""Main web app file."""
 import os
 
 from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
+
+# from sqlalchemy import create_engine
 
 # from .forms import EditZoneForm
 
@@ -29,13 +31,18 @@ SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.pa
 
 db.init_app(app)
 
+
+# pylint: disable=R0903
 class Zone(db.Model):
+    """Zone contains all the information about a zone in the yard."""
+
     zone_id = db.Column(db.Integer, primary_key=True)
     zone_name = db.Column(db.String(50), nullable=True)
     image_url = db.Column(db.String(255), nullable=True)
     schedule_id = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
+        """Return a string representation of the zone."""
         return f"Zone('{self.zone_name}', '{self.image_url}')"
 
 
@@ -54,6 +61,7 @@ zones = [
 @app.route("/")
 @app.route("/home")
 def home():
+    """Render the index page."""
     # engine = create_engine(SQLALCHEMY_DATABASE_URI)
     # result = engine.execute("select * from zone")
     # for row in result:
@@ -64,21 +72,22 @@ def home():
     for row in data:
         print(row)
 
-
     return render_template("pages/home.html", zones=zones[:8])
 
 
 @app.route("/zone/")
-def zone():
+def all_zones():
+    """Render the zone page."""
     return render_template("pages/zone.html", zones=zones[:8])
 
 
 @app.route("/zone/<zone_id>", methods=["GET", "POST"])
 def zone_detail(zone_id):
+    """Render the zone detail page."""
     # form = EditZoneForm()
     # if form.validate_on_submit():
     #     f = form.photo.data
     #     filename = secure_filename(f.filename)
 
-    zone = zones[int(zone_id)]
-    return render_template("pages/zone_detail.html", zone=zone)
+    cur_zone = zones[int(zone_id)]
+    return render_template("pages/zone_detail.html", zone=cur_zone)

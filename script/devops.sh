@@ -55,25 +55,8 @@ provision(){
 
     echo "Deploying ${deployment_name} with ${additional_parameters[*]}"
 
-    # shellcheck source=/home/brlamore/src/trykle-web/iac/app.sh
-    source "${INFRA_DIRECTORY}/connectivity.sh" --parameters "${additional_parameters[@]}"
-}
-
-provision_common(){
-    # Provision resources for the application.
-    local location=$1
-    local deployment_name="common_services.Provisioning-${run_date}"
-
-    additional_parameters=("message=$message")
-    if [ -n "$location" ]
-    then
-        additional_parameters+=("location=$location")
-    fi
-
-    echo "Deploying ${deployment_name} with ${additional_parameters[*]}"
-
-    # shellcheck source=/home/brlamore/src/azure_subscription_boilerplate/iac/common_services_deployment.sh
-    source "${INFRA_DIRECTORY}/common_services_deployment.sh" --parameters "${additional_parameters[@]}"
+    # shellcheck source=/workspaces/trykle-web/iac/main.sh
+    source "${INFRA_DIRECTORY}/main.sh" --parameters "${additional_parameters[@]}"
 }
 
 delete(){
@@ -81,53 +64,7 @@ delete(){
 }
 
 deploy(){
-    local source_folder="${PROJ_ROOT_PATH}/functions"
-    local destination_dir="${PROJ_ROOT_PATH}/dist"
-    local timestamp
-    timestamp=$(date +'%Y%m%d%H%M%S')
-    local zip_file_name="${app_name}_${timestamp}.zip"
-    local zip_file_path="${destination_dir}/${zip_file_name}"
-
-    echo "$0 : deploy $app_name" >&2
-
-    # Ensure the source folder exists
-    if [ ! -d "$source_folder" ]; then
-        echo "Error: Source folder '$source_folder' does not exist."
-        return 1
-    fi
-
-    # Create the destination directory if it doesn't exist
-    mkdir -p "$(dirname "$zip_file_path")"
-
-    # Create an array for exclusion patterns to zip based on .gitignore
-    exclude_patterns=()
-    while IFS= read -r pattern; do
-        # Skip lines starting with '#' (comments)
-        if [[ "$pattern" =~ ^[^#] ]]; then
-            exclude_patterns+=("-x./$pattern")
-        fi
-    done < "${PROJ_ROOT_PATH}/.gitignore"
-    exclude_patterns+=("-x./local.settings.*")
-    exclude_patterns+=("-x./requirements_dev.txt")
-
-    # Zip the folder to the specified location
-    cd "$source_folder"
-    zip -r "$zip_file_path" ./* "${exclude_patterns[@]}"
-
-    func azure functionapp publish "$app_name"
-
-    # az functionapp deployment source config-zip \
-    #     --name "${functionapp_name}" \
-    #     --resource-group "${resource_group}" \
-    #     --src "${zip_file_path}"
-
-    # Update environment variables to function app
-    update_environment_variables
-
-    echo "Cleaning up"
-    rm "${zip_file_path}"
-
-    echo "Done"
+    pass
 }
 
 update_environment_variables(){
@@ -140,7 +77,7 @@ echo "Project root: $PROJ_ROOT_PATH"
 SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
 INFRA_DIRECTORY="${PROJ_ROOT_PATH}/iac"
 
-# shellcheck source=common.sh
+# shellcheck source=/workspaces/trykle-web/script/common.sh
 source "${SCRIPT_DIRECTORY}/common.sh"
 
 # Argument/Options
@@ -150,7 +87,6 @@ OPTIONS=m:g:l:jh
 # Variables
 message=""
 location="westus3"
-jumpbox="false"
 run_date=$(date +%Y%m%dT%H%M%S)
 # ISO_DATE_UTC=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
@@ -171,10 +107,6 @@ while true; do
         -l|--location)
             location="$2"
             shift 2
-            ;;
-        -j|--jumpbox)
-            jumpbox="true"
-            shift
             ;;
         --)
             shift

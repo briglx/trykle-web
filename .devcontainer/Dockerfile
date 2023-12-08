@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     shellcheck \
     vim \
-    zsh 
+    zsh
 
 # Install Azure CLI latest (2.55.0)
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -42,5 +42,3 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 COPY requirements_dev.txt .
 RUN python -m pip install -r ./requirements_dev.txt
-
-

@@ -22,6 +22,6 @@
       "cpus": 4,
       "memory": "8gb",
       "storage": "32gb"
-    }
-    // "postCreateCommand": "pre-commit install && npm install && pre-commit run --all-files && git config diff.wsErrorHighlight all"
+    },
+    "postCreateCommand": "pre-commit install && pre-commit run --all-files && git config diff.wsErrorHighlight all"
   }
