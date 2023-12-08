@@ -5,7 +5,6 @@
 <h1>Zone Details</h1>
 <form action="/zone">
 
-
 <fieldset>
     <p>
         <label for="zone_name">Zone Name</label>
@@ -24,8 +23,7 @@
 
     </p>
   </fieldset>
-  {{ form.name.label }} {{ form.name(size=20) }}
-  {{ form.csrf_token }}
+
 </form>
 
 {% endblock %}

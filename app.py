@@ -23,8 +23,11 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 
-db.init_app(app)
+SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(
+    basedir, "data.sqlite"
+)
 
+db.init_app(app)
 
 class Zone(db.Model):
     zone_id = db.Column(db.Integer, primary_key=True)
@@ -51,11 +54,16 @@ zones = [
 @app.route("/")
 @app.route("/home")
 def home():
-    engine = create_engine(SQLALCHEMY_DATABASE_URI)
-    result = engine.execute("select * from zone")
-    for row in result:
+    # engine = create_engine(SQLALCHEMY_DATABASE_URI)
+    # result = engine.execute("select * from zone")
+    # for row in result:
+    #     print(row)
+    # result.close()
+
+    data = Zone.query.all()
+    for row in data:
         print(row)
-    result.close()
+
 
     return render_template("pages/home.html", zones=zones[:8])
 
