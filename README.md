@@ -77,6 +77,7 @@ Run the Web App
 
 ```bash
 FLASK_APP=app.py FLASK_DEBUG=1 FLASK_RUN_CERT=adhoc flask run
+FLASK_APP=app.py FLASK_DEBUG=1 flask run
 ```
 
 Deploy and Run the Web app in cloud

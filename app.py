@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # from sqlalchemy import create_engine
 
@@ -24,12 +25,10 @@ db = SQLAlchemy()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-
-SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(
-    basedir, "data.sqlite"
-)
-
 db.init_app(app)
+
+# Fix Azure webapp proxy
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
 # pylint: disable=R0903
@@ -91,3 +90,8 @@ def zone_detail(zone_id):
 
     cur_zone = zones[int(zone_id)]
     return render_template("pages/zone_detail.html", zone=cur_zone)
+
+
+if __name__ == "__main__":
+    print("Running from app.py")
+    app.run()
