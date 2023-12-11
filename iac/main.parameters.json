@@ -2,8 +2,23 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+      "applicationName":{
+        "value": "trykle"
+      },
       "location": {
         "value": "westus3"
+      },
+      "applicationInsightsName": {
+        "value": "trykle-appinsights"
+      },
+      "applicationInsightsResourceGroup": {
+        "value": "rg-trykle"
+      },
+      "keyVaultName": {
+        "value": "kv-trykle"
+      },
+      "keyVaultResourceGroup": {
+        "value": "rg-trykle"
       }
     }
 }

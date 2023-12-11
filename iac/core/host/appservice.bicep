@@ -4,8 +4,10 @@ param tags object = {}
 
 // Reference Properties
 param applicationInsightsName string = ''
+param applicationInsightsResourceGroup string = ''
 param appServicePlanId string
 param keyVaultName string = ''
+param keyVaultResourceGroup string = ''
 param managedIdentity bool = !empty(keyVaultName)
 
 // Runtime Properties
@@ -43,19 +45,19 @@ resource appService 'Microsoft.Web/sites@2022-03-01' = {
   properties: {
     serverFarmId: appServicePlanId
     siteConfig: {
-      linuxFxVersion: linuxFxVersion
       alwaysOn: alwaysOn
-      ftpsState: ftpsState
-      minTlsVersion: '1.2'
       appCommandLine: appCommandLine
-      numberOfWorkers: numberOfWorkers != -1 ? numberOfWorkers : null
-      minimumElasticInstanceCount: minimumElasticInstanceCount != -1 ? minimumElasticInstanceCount : null
-      use32BitWorkerProcess: use32BitWorkerProcess
-      functionAppScaleLimit: functionAppScaleLimit != -1 ? functionAppScaleLimit : null
-      healthCheckPath: healthCheckPath
       cors: {
         allowedOrigins: union([ 'https://portal.azure.com', 'https://ms.portal.azure.com' ], allowedOrigins)
       }
+      ftpsState: ftpsState
+      functionAppScaleLimit: functionAppScaleLimit != -1 ? functionAppScaleLimit : null
+      healthCheckPath: healthCheckPath
+      linuxFxVersion: linuxFxVersion
+      minimumElasticInstanceCount: minimumElasticInstanceCount != -1 ? minimumElasticInstanceCount : null
+      minTlsVersion: '1.2'
+      numberOfWorkers: numberOfWorkers != -1 ? numberOfWorkers : null
+      use32BitWorkerProcess: use32BitWorkerProcess
     }
     clientAffinityEnabled: clientAffinityEnabled
     httpsOnly: true
@@ -90,10 +92,12 @@ resource appService 'Microsoft.Web/sites@2022-03-01' = {
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = if (!(empty(keyVaultName))) {
   name: keyVaultName
+  scope: resourceGroup(keyVaultResourceGroup)
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = if (!empty(applicationInsightsName)) {
   name: applicationInsightsName
+  scope: resourceGroup(applicationInsightsResourceGroup)
 }
 
 output id string = appService.id

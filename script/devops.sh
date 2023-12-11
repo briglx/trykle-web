@@ -3,7 +3,7 @@
 # Onboard and manage application on cloud infrastructure.
 # Usage: devops.sh [COMMAND]
 # Globals:
-#
+#   ENV_FILE        Path to the environment variables file.
 # Commands
 #   provision  Provision resources.
 #   deploy          Prepare the app and deploy to cloud.
@@ -39,24 +39,94 @@ validate_parameters(){
     fi
 }
 
+replace_parameters(){
+
+    # echo "Replace parameters with environment variables"
+    additional_parameters=()
+    if [ -n "$location" ]
+    then
+        additional_parameters+=("location=$location")
+    fi
+    if [ -n "$APPLICATION_INSIGHTS_NAME" ]
+    then
+        additional_parameters+=("applicationInsightsName=$APPLICATION_INSIGHTS_NAME")
+        additional_parameters+=("applicationInsightsResourceGroup=$APPLICATION_INSIGHTS_RG")
+    fi
+    if [ -n "$KEY_VAULT_NAME" ]
+    then
+        additional_parameters+=("keyVaultName=$KEY_VAULT_NAME")
+        additional_parameters+=("keyVaultResourceGroup=$KEY_VAULT_RG")
+    fi
+
+    echo "${additional_parameters[@]}"
+
+}
 validate_deployment(){
-    pass
+    local location=$1
+    local deployment_name="Trykle.Provisioning-${run_date}"
+
+    IFS=' ' read -ra additional_parameters <<< "$(replace_parameters)"
+    # additional_parameters=($(replace_parameters))
+
+    echo "Validating ${deployment_name} with ${additional_parameters[*]}"
+
+    # shellcheck source=/workspaces/trykle-web/iac/main.sh
+    # source "${INFRA_DIRECTORY}/main.sh" --parameters "${additional_parameters[@]}"
+
+    result=$(az deployment sub validate \
+        --name "${deployment_name}" \
+        --location "$location" \
+        --template-file "${INFRA_DIRECTORY}/main.bicep" \
+        --parameters "${INFRA_DIRECTORY}/main.parameters.json" \
+        --parameters "${additional_parameters[@]}")
+
+    state=$(echo "$result" | jq -r '.properties.provisioningState')
+    if [ "$state" != "Succeeded" ]
+    then
+        echo "Validation failed with state $state"
+        echo "$result" | jq -r '.properties.error.details[]'
+        exit 1
+    fi
+
 }
 provision(){
     # Provision resources for the application.
     local location=$1
     local deployment_name="Trykle.Provisioning-${run_date}"
 
-    additional_parameters=("message=$message")
-    if [ -n "$location" ]
-    then
-        additional_parameters+=("location=$location")
-    fi
+    IFS=' ' read -ra additional_parameters <<< "$(replace_parameters)"
 
     echo "Deploying ${deployment_name} with ${additional_parameters[*]}"
 
     # shellcheck source=/workspaces/trykle-web/iac/main.sh
-    source "${INFRA_DIRECTORY}/main.sh" --parameters "${additional_parameters[@]}"
+    # source "${INFRA_DIRECTORY}/main.sh" --parameters "${additional_parameters[@]}"
+
+    result=$(az deployment sub create \
+        --name "${deployment_name}" \
+        --location "$location" \
+        --template-file "${INFRA_DIRECTORY}/main.bicep" \
+        --parameters "${INFRA_DIRECTORY}/main.parameters.json" \
+        --parameters "${additional_parameters[@]}")
+
+    echo "$result" >> "${PROJ_ROOT_PATH}/.azuredeploy.log"
+
+    state=$(echo "$result" | jq -r '.properties.provisioningState')
+    if [ "$state" != "Succeeded" ]
+    then
+        echo "Deployment failed with state $state"
+        echo "$result" | jq -r '.properties.error.details[]'
+        exit 1
+    fi
+
+    # Get the output variables from the deployment
+    output_variables=$(az deployment sub show -n "${deployment_name}" --query 'properties.outputs' --output json)
+    echo "Save deployment $deployment_name output variables to ${ENV_FILE}"
+    {
+        echo ""
+        echo "# Deployment output variables"
+        echo "# Generated on ${ISO_DATE_UTC}"
+        echo "$output_variables" | jq -r 'to_entries[] | "\(.key | ascii_upcase )=\(.value.value)"'
+    }>> "$ENV_FILE"
 }
 
 delete(){
@@ -74,6 +144,7 @@ update_environment_variables(){
 # Globals
 PROJ_ROOT_PATH=$(cd "$(dirname "$0")"/..; pwd)
 echo "Project root: $PROJ_ROOT_PATH"
+ENV_FILE="${PROJ_ROOT_PATH}/.env"
 SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
 INFRA_DIRECTORY="${PROJ_ROOT_PATH}/iac"
 
@@ -85,7 +156,6 @@ LONGOPTS=message:,resource-group:,location:,jumpbox,help
 OPTIONS=m:g:l:jh
 
 # Variables
-message=""
 location="westus3"
 run_date=$(date +%Y%m%dT%H%M%S)
 # ISO_DATE_UTC=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
@@ -99,10 +169,6 @@ while true; do
         -h|--help)
             show_help
             exit
-            ;;
-        -m|--message)
-            message="$2"
-            shift 2
             ;;
         -l|--location)
             location="$2"
@@ -128,6 +194,7 @@ case "$command" in
         exit 0
         ;;
     provision)
+        validate_deployment "$location"
         provision "$location"
         exit 0
         ;;

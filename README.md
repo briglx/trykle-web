@@ -12,6 +12,8 @@ Configure the environment variables. Copy `example.env` to `.env` and update the
 source ./script/common.sh
 load_env .env
 
+az login --tenant $TENANT_ID
+
 # Create Core Infrastructure
 ./script/devops.sh provision
 ```

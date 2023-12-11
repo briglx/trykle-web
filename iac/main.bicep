@@ -10,7 +10,9 @@ param location string
 param applicationName string
 
 param applicationInsightsName string = ''
-param logAnalyticsName string = ''
+param applicationInsightsResourceGroup string = ''
+param keyVaultName string = ''
+param keyVaultResourceGroup string = ''
 param appServicePlanName string = ''
 param appServiceName string = ''
 
@@ -30,12 +32,13 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
   name: 'appserviceplan'
   scope: rg
   params: {
-    name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${applicationName}-${environmentName}-${resourceToken}'
+    name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${applicationName}-${resourceToken}'
     location: location
+    kind: 'linux'
     tags: tags
     sku: {
-      name: 'Y1'
-      tier: 'Dynamic'
+      name: 'F1'
+      tier: 'Free'
     }
   }
 }
@@ -48,37 +51,31 @@ module appService './core/host/appservice.bicep' = {
     location: location
     tags: tags
     alwaysOn: false
-    // appSettings: {
-    //   AzureWebJobsFeatureFlags: 'EnableWorkerIndexing'
-    //   FUNCTIONS_WORKER_RUNTIME: 'python'
-    //   AZURE_TENANT_ID: tenant().tenantId
-    // }
-    applicationInsightsName: monitoring.outputs.applicationInsightsName
+    applicationInsightsName: applicationInsightsName
+    applicationInsightsResourceGroup: applicationInsightsResourceGroup
     appServicePlanId: appServicePlan.outputs.id
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultName
+    keyVaultResourceGroup: keyVaultResourceGroup
+    use32BitWorkerProcess: true
     runtimeName: 'python'
     runtimeVersion: '3.10'
   }
 }
 
-
 /////////// Database ///////////
+// TBD
+/////////// Outputs ///////////
 
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_LOCATION string = location
 
-output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.endpoint
-output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
-output STORAGE_ACCOUNT_ID string = storageAccount.outputs.id
-output STORAGE_ACCOUNT_NAME string = storageAccount.outputs.name
-output STORAGE_CONTAINER_NAME array = storageAccount.outputs.containerNames
-output EVENT_GRID_NAME string = eventGrid.outputs.systemTopicName
-output APPLICATION_INSIGHTS_NAME string = monitoring.outputs.applicationInsightsName
-output LOG_ANALYTICS_NAME string = monitoring.outputs.logAnalyticsName
-output APP_SERVICE_PLAN_NAME string = appServicePlan.outputs.name
-output FUNCTION_APP_ID string = functions.outputs.id
-output FUNCTION_APP_NAME string = functions.outputs.name
-output FUNCTION_APP_HOST_NAME string = functions.outputs.uri
-output FUNCTION_APP_PRINCIPAL_ID string = functions.outputs.identityPrincipalId
 output RESOURCE_TOKEN string = resourceToken
 output AZURE_RESOURCE_GROUP_NAME string = rg.name
+
+output APP_SERVICE_PLAN_ID string = appServicePlan.outputs.id
+output APP_SERVICE_PLAN_NAME string = appServicePlan.outputs.name
+
+output WEB_APP_ID string = appService.outputs.id
+output WEB_APP_NAME string = appService.outputs.name
+output WEB_APP_IDENTITY string = appService.outputs.identityPrincipalId
+output WEB_APP_URI string = appService.outputs.uri
