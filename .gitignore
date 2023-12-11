@@ -131,3 +131,4 @@ app.env
 .vscode/settings.json
 
 *.sqlite
+.deploy

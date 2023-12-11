@@ -70,7 +70,7 @@ output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_LOCATION string = location
 
 output RESOURCE_TOKEN string = resourceToken
-output AZURE_RESOURCE_GROUP_NAME string = rg.name
+output WEB_APP_RESOURCE_GROUP_NAME string = rg.name
 
 output APP_SERVICE_PLAN_ID string = appServicePlan.outputs.id
 output APP_SERVICE_PLAN_NAME string = appServicePlan.outputs.name

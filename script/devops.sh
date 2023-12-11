@@ -134,7 +134,59 @@ delete(){
 }
 
 deploy(){
-    pass
+
+    temp_build_dir="./.deploy"
+    archive_name="web_app_archive-${run_date}"
+
+    if [[ -z "$WEB_APP_NAME" ]]; then
+        echo 'WEB_APP_NAME is required' >&2
+        show_help
+        exit 2
+    fi
+
+    if [[ -z "$WEB_APP_RESOURCE_GROUP_NAME" ]]; then
+        echo 'WEB_APP_RESOURCE_GROUP_NAME is required' >&2
+        show_help
+        exit 2
+    fi
+
+    # Remove previous archive
+    echo "Remove previous zip if exists."
+    if  ls ./*.zip 1> /dev/null 2>&1; then
+        echo "Deleting existing .zip files."
+        rm ./*.zip
+    fi
+
+    echo "Check if dir exists ${temp_build_dir}"
+    if [ ! -d "$temp_build_dir" ]; then
+        echo "Error: Directory does not exist. $temp_build_dir"
+        mkdir "$temp_build_dir"
+    else
+        echo "Deleting existing ./${temp_build_dir}"
+        rm -rf ./"${temp_build_dir:?}"
+        mkdir "$temp_build_dir"
+    fi
+
+    # copy files to deploy dir
+    echo "Copying files to deploy dir"
+    cp -r ./static "${temp_build_dir}"
+    cp -r ./templates "${temp_build_dir}"
+    cp -r ./app.py "${temp_build_dir}"
+    cp -r ./requirements.txt "${temp_build_dir}"
+
+    # Change to the target directory
+    cd "${temp_build_dir}" || exit 1
+
+    echo "Creating zip"
+
+    py_exclude=('*.pyc' '*__pycache__*')
+    flask_exclude=('*flask_session*')
+    # zip -r "$archive_name" . -x "${dir_exclude[@]}" "${files_exclude[@]}" "${py_exclude[@]}" "${py_exclude[@]}" "${flask_exclude[@]}"
+    zip -r "$archive_name" . -x "${py_exclude[@]}" "${py_exclude[@]}" "${flask_exclude[@]}"
+
+    echo Initiate deployment
+    az webapp deploy --name "${WEB_APP_NAME}" --resource-group "$WEB_APP_RESOURCE_GROUP_NAME" --type zip --src-path "${archive_name}.zip"
+
 }
 
 update_environment_variables(){

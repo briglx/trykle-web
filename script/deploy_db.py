@@ -10,9 +10,9 @@ def main():
     sys.path.append(project_path)
 
     # pylint: disable=import-outside-toplevel
-    from app import db
+    # from app import db
 
-    db.create_all()
+    # db.create_all()
 
 
 if __name__ == "__main__":

@@ -4,5 +4,8 @@ version     = "2023.12.1"
 description = "briglx/trykle-web"
 readme      = "README.md"
 
+[tool.isort]
+profile = "black"
+
 [tool.codespell]
 skip = '.*,*.map,static/js/bootstrap.*.js,static/js/bootstrap.bundle.js,static/js/bootstrap.bundle.*.js'

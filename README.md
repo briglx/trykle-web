@@ -85,7 +85,7 @@ FLASK_APP=app.py FLASK_DEBUG=1 flask run
 Deploy and Run the Web app in cloud
 
 ```bash
-az webapp up --name trykle
+./script/devops.sh deploy
 ```
 
 ## Style Guidelines

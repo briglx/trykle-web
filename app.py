@@ -3,7 +3,8 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
+
+# from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # from sqlalchemy import create_engine
@@ -16,33 +17,36 @@ if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
 SECRET_KEY = os.environ.get("SECRET_KEY") or "hard to guess string"
-SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(
-    basedir, "data.sqlite"
-)
+# SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(
+#     basedir, "data.sqlite"
+# )
+# SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
+#     basedir, "data.sqlite"
+# )
 
-db = SQLAlchemy()
+# db = SQLAlchemy()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = SECRET_KEY
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-db.init_app(app)
+# app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+# db.init_app(app)
 
 # Fix Azure webapp proxy
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
-# pylint: disable=R0903
-class Zone(db.Model):
-    """Zone contains all the information about a zone in the yard."""
+# # pylint: disable=R0903
+# class Zone(db.Model):
+#     """Zone contains all the information about a zone in the yard."""
 
-    zone_id = db.Column(db.Integer, primary_key=True)
-    zone_name = db.Column(db.String(50), nullable=True)
-    image_url = db.Column(db.String(255), nullable=True)
-    schedule_id = db.Column(db.Integer, nullable=True)
+#     zone_id = db.Column(db.Integer, primary_key=True)
+#     zone_name = db.Column(db.String(50), nullable=True)
+#     image_url = db.Column(db.String(255), nullable=True)
+#     schedule_id = db.Column(db.Integer, nullable=True)
 
-    def __repr__(self):
-        """Return a string representation of the zone."""
-        return f"Zone('{self.zone_name}', '{self.image_url}')"
+#     def __repr__(self):
+#         """Return a string representation of the zone."""
+#         return f"Zone('{self.zone_name}', '{self.image_url}')"
 
 
 zones = [
@@ -67,9 +71,9 @@ def home():
     #     print(row)
     # result.close()
 
-    data = Zone.query.all()
-    for row in data:
-        print(row)
+    # data = Zone.query.all()
+    # for row in data:
+    #     print(row)
 
     return render_template("pages/home.html", zones=zones[:8])
 
