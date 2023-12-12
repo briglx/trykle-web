@@ -201,6 +201,7 @@ SCRIPT_DIRECTORY="${PROJ_ROOT_PATH}/script"
 INFRA_DIRECTORY="${PROJ_ROOT_PATH}/iac"
 
 # shellcheck source=/workspaces/trykle-web/script/common.sh
+# shellcheck source=/home/runner/work/trykle-web/trykle-web/script/common.sh
 source "${SCRIPT_DIRECTORY}/common.sh"
 
 # Argument/Options
