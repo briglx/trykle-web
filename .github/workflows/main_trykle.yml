@@ -1,57 +1,113 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Python app to Azure Web App - trykle
+name: CI
+run-name: "${{ github.event_name == 'workflow_dispatch' && format('CI: {0}', github.ref_name) || '' }}"
 
 on:
   push:
-    branches:
-      - main
+    branches: ~
+  pull_request: ~
+
+env:
+  WEB_APP_NAME: app-trykle-z6pvlzynipu5s # set this to your application's name
+  WEB_APP_RESOURCE_GROUP_NAME: rg-trykle_westus3 # set this to your preferred resource group name
+  PYTHON_VERSION: "3.10"
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
 
 jobs:
-  lint-black:
-    name: Check black
-    runs-on: ubuntu-latest
-
+  linting:
+    name: Run linting
+    runs-on: ubuntu-22.04
     steps:
-
-    - name: Check out code from GitHub
-      uses: actions/checkout@v2
-
-    - name: Set up Python version
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.8'
-
-    - name: Install dependencies
-      run: |
-          python -m pip install --upgrade pip
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.3
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        id: python
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          check-latest: true
+      - name: Create Python virtual environment
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python --version
           pip install -r requirements_dev.txt
+      - name: Install pre-commit dependencies
+        run: |
+          . venv/bin/activate
+          pre-commit install-hooks
+      - name: Run codespell
+        run: |
+          . venv/bin/activate
+          pre-commit run --all-files codespell
+      - name: Run check_shellcheck
+        run: |
+          . venv/bin/activate
+          pre-commit run --hook-stage manual check_shellcheck --all-files --show-diff-on-failure
+      - name: Run mixed-line-ending
+        run: |
+          . venv/bin/activate
+          pre-commit run --all-files mixed-line-ending
+      - name: Python Lint
+        run: |
+          . venv/bin/activate
+          pre-commit run --all-files isort
+          pre-commit run --hook-stage manual black --all-files --show-diff-on-failure
+          pre-commit run --all-files flake8
+          pre-commit run --all-files pylint
 
-    - name: Run black
-      run: |
-        pre-commit run --hook-stage manual black --all-files --show-diff-on-failure
+      - name: Run check-yaml
+        run: |
+          . venv/bin/activate
+          pre-commit run --all-files check-yaml
 
   build-and-deploy:
     runs-on: ubuntu-latest
-    needs: lint-black
+    environment: dev
+    if: github.event_name == 'pull_request'
+    needs: linting
     steps:
-    - uses: actions/checkout@master
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.5.3
+      - name: Setup Python
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install venv requirements
+        run: |
+          sudo apt install python${{ env.PYTHON_VERSION }}-venv
+          python -m venv --copies antenv
+          source antenv/bin/activate
+          pip install setuptools
+          pip install -r requirements.txt
 
-    - name: Set up Python version
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.8'
+      - name: OIDC Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.CICD_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Build using AppService-Build
-      uses: azure/appservice-build@v2
-      with:
-        platform: python
-        platform-version: '3.8'
+      - name: Package Web Assets
+        run: |
 
-    - name: 'Deploy to Azure Web App'
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'trykle'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_e1c0865da3ad4fe48f6b2549e3033c6d }}
+          echo Install build dependencies
+          npm install
+
+          echo Build assets
+          npm run build:dev
+
+      - name: Deploy Web App
+        run: |
+
+          # Deploy web app
+          ./script/devops.sh deploy
+
+      - name: logout
+        run: |
+          az logout

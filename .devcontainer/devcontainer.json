@@ -8,13 +8,14 @@
     "customizations": {
       "vscode": {
         "extensions": [
-          "IronGeek.vscode-env",
-          "timonwong.shellcheck",
-          "ms-azuretools.vscode-docker",
-          "ms-azuretools.vscode-bicep",
           "esbenp.prettier-vscode",
           "GitHub.copilot",
-          "hediet.vscode-drawio"
+          "github.vscode-github-actions",
+          "hediet.vscode-drawio",
+          "IronGeek.vscode-env",
+          "ms-azuretools.vscode-bicep",
+          "ms-azuretools.vscode-docker",
+          "timonwong.shellcheck"
         ]
       }
     },
