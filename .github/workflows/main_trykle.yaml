@@ -63,7 +63,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     environment: dev
-    if: github.event_name == 'pull_request'
     needs: linting
     steps:
       - name: Check out code from GitHub
