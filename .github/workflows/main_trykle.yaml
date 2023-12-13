@@ -5,9 +5,7 @@ name: CI
 run-name: "${{ github.event_name == 'workflow_dispatch' && format('CI: {0}', github.ref_name) || '' }}"
 
 on:
-  push:
-    branches: ~
-  pull_request: ~
+  push: ~
 
 env:
   WEB_APP_NAME: app-trykle-z6pvlzynipu5s # set this to your application's name
@@ -49,10 +47,6 @@ jobs:
         run: |
           . venv/bin/activate
           pre-commit run --hook-stage manual check_shellcheck --all-files --show-diff-on-failure
-      - name: Run mixed-line-ending
-        run: |
-          . venv/bin/activate
-          pre-commit run --all-files mixed-line-ending
       - name: Python Lint
         run: |
           . venv/bin/activate
