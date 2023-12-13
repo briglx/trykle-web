@@ -159,7 +159,7 @@ deploy(){
 
     echo "Check if dir exists ${temp_build_dir}"
     if [ ! -d "$temp_build_dir" ]; then
-        echo "Error: Directory does not exist. $temp_build_dir"
+        echo "Directory does not exist. $temp_build_dir. Creating ..."
         mkdir "$temp_build_dir"
     else
         echo "Deleting existing ./${temp_build_dir}"
