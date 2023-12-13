@@ -86,15 +86,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Package Web Assets
-        run: |
-
-          echo Install build dependencies
-          npm install
-
-          echo Build assets
-          npm run build:dev
-
       - name: Deploy Web App
         run: |
 
